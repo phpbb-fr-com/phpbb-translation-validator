@@ -8,14 +8,14 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php: ['7.4']
+        php: ['7.2']
 
     name: PHP ${{ matrix.php }} tests
     steps:
       - run: echo "This job for ${{ github.ref }} was automatically triggered by a ${{ github.event_name }} event on ${{ runner.os }}."
 
       # Basically git clone
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       # Use PHP of specific version
       - uses: shivammathur/setup-php@v2
@@ -23,7 +23,12 @@ jobs:
           php-version: ${{ matrix.php }}
           coverage: none # disable xdebug, pcov
 
+      - name: Install Composer dependencies
+        uses: php-actions/composer@v6
+        with:
+          php_version: ${{ matrix.php }}
+          args: --prefer-source
+
       # If we use two steps like this, we can better see if composer or the test failed
-      - run: composer install --dev --no-interaction --prefer-source
       - run: vendor/phpunit/phpunit/phpunit
       - run: echo "This job's status is ${{ job.status }}."
